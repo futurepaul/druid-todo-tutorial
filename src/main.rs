@@ -11,8 +11,7 @@ pub fn main() {
         .title("Todo Tutorial")
         .window_size((400.0, 400.0));
 
-    let todos = vec![TodoItem::new("thing one"), TodoItem::new("thing two")];
-    let initial_state = AppState::new(todos);
+    let initial_state = AppState::load_from_json();
 
     AppLauncher::with_window(main_window)
         .launch(initial_state)
