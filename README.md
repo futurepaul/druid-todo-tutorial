@@ -435,14 +435,7 @@ The quick and easy way is to add a "Clear completed" method to our `AppState`. L
 
 ```rust
     pub fn clear_completed(_ctx: &mut EventCtx, data: &mut Self, _env: &Env) {
-        let new_todos: Vector<TodoItem> = data
-            .todos
-            .iter()
-            .cloned()
-            .filter(|item| !item.done)
-            .collect();
-
-        data.todos = new_todos;
+        data.todos.retain(|item| !item.done);
 
         data.save_to_json().unwrap();
     }
@@ -512,14 +505,7 @@ First let's add a method to `AppState` to do the actual deleting. This looks a l
 
 ```rust
     pub fn delete_todo(&mut self, id: &Uuid) {
-        let new_todos: Vector<TodoItem> = self
-            .todos
-            .iter()
-            .cloned()
-            .filter(|item| &item.id != id)
-            .collect();
-
-        self.todos = new_todos;
+        self.todos.retain(|item| &item.id != id);
 
         self.save_to_json().unwrap();
     }
