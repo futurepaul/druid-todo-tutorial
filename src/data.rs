@@ -5,6 +5,9 @@ use std::{
 
 use druid::{im::Vector, Data, Env, EventCtx, Lens};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+
+use crate::delegate::DELETE;
 
 #[derive(Clone, Data, Lens)]
 pub struct AppState {
@@ -55,19 +58,52 @@ impl AppState {
             },
         }
     }
+
+    pub fn clear_completed(_ctx: &mut EventCtx, data: &mut Self, _env: &Env) {
+        let new_todos: Vector<TodoItem> = data
+            .todos
+            .iter()
+            .cloned()
+            .filter(|item| !item.done)
+            .collect();
+
+        data.todos = new_todos;
+
+        data.save_to_json().unwrap();
+    }
+
+    pub fn delete_todo(&mut self, id: &Uuid) {
+        let new_todos: Vector<TodoItem> = self
+            .todos
+            .iter()
+            .cloned()
+            .filter(|item| &item.id != id)
+            .collect();
+
+        self.todos = new_todos;
+
+        self.save_to_json().unwrap();
+    }
 }
 
 #[derive(Clone, Data, Lens, Serialize, Deserialize)]
 pub struct TodoItem {
-    done: bool,
+    #[data(same_fn = "PartialEq::eq")]
+    pub id: Uuid,
+    pub done: bool,
     pub text: String,
 }
 
 impl TodoItem {
     pub fn new(text: &str) -> Self {
         Self {
+            id: Uuid::new_v4(),
             done: false,
             text: text.into(),
         }
+    }
+
+    pub fn click_delete(ctx: &mut EventCtx, data: &mut Self, _env: &Env) {
+        ctx.submit_command(DELETE.with(data.id));
     }
 }

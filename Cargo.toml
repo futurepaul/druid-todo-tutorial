@@ -10,3 +10,4 @@ edition = "2018"
 druid = { git = "https://github.com/linebender/druid", rev="8b0e5c9", features = ["im"]}
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+uuid = { version = "0.8.1", features = ["serde", "v4"] }
