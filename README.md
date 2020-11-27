@@ -1,4 +1,4 @@
-Hello! My name is Paul and today I'd like to help you make a slightly-more-complex-than-hello-world app using [Druid, a GUI framework written in Rust][druid]. In the classic GUI tradition we'll be working on a simple todo app. You'll need some familiarity with Rust to follow along, but I'll try not to assume too much familiarity because a lot of what I know about Rust has been learned in parallel with learning Druid and contributing to the project.
+Hello! My name is Paul and today I'd like to help you make a slightly-more-complex-than-hello-world app using [Druid, a GUI framework written in Rust][druid]. In the classic GUI tradition we'll be working on a simple todo app. You'll need some familiarity with Rust to follow along, especially Rust's concept of [Traits][traits], but I'll try not to assume too much familiarity because a lot of what I know about Rust has been learned in parallel with learning Druid and contributing to the project.
 
 ## 1. Setup
 
@@ -140,7 +140,7 @@ What's interesting here is that if you look at `Druid's` implementation of `Chec
 
 Meanwhile, `Label::raw()` constructs a `RawLabel` widget which is generic on `T: TextStorage` which we obviously haven't implemented for `TodoItem`.
 
-Enter lenses. A lens is a datatype that gives access to a part of a larger data structure. Because we have derived `Lens` for our `TodoItem` struct, we can "lens" into the members of `TodoItem` to give these widgets only the portion of data they know how to work with. `.lens(TodoItem::done)` gives `Checkbox` the `bool` it craves, while `.lens(TodoItem::text)` gives `RawLabel` a `String`, for which `Druid` has already implemented `TextStorage` for. 
+Enter lenses. A lens is a datatype that gives access to a part of a larger data structure. Because we have derived `Lens` for our `TodoItem` struct, we can "lens" into the members of `TodoItem` to give these widgets only the portion of data they know how to work with. `.lens(TodoItem::done)` gives `Checkbox` the `bool` it craves, while `.lens(TodoItem::text)` gives `RawLabel` a `String`, for which `Druid` has already implemented `TextStorage`. 
 
 We don't need to do any lensing for the `Flex` widget because it doesn't need to look at its data, it simply passes it along to its children (this is common for many of the built-in layout widgets). The `List` widget requires a `Data` that impls its `ListIter` trait, but kindly offers default implmentations for a few basic collections, including `im::Vector`, so we just lens our `AppState` down to to `todos` and `List` knows what to do from there. 
 
@@ -188,6 +188,8 @@ impl AppState {
     }
 }
 ```
+
+### view.rs
 
 Now in our view we'll create a new function that impls `Widget<AppState>`:
 
@@ -237,12 +239,16 @@ A todo app is of limited utility if it doesn't persist its state, so let's do so
 
 First we'll add the `serde` dependencies:
 
+### Cargo.toml
+
 ```toml
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 ```
 
-Now in `data.rs` we'll derive serde's `Serialize` and `Deserialize` for `TodoItem`:
+### data.rs
+
+Now we derive serde's `Serialize` and `Deserialize` for `TodoItem`:
 
 ```rust
 #[derive(Clone, Data, Lens, Serialize, Deserialize)]
@@ -292,13 +298,15 @@ Now we can update our `add_todo` method to include a call to `save_to_json`:
     }
 ```
 
-And in `main.rs` we can now generate our `initial_state` from the `.json` file (which defaults to an empty state if there is none):
+### main.rs
+
+And now we can now generate our `initial_state` from the `.json` file during setup (this will default to an empty state if there is none):
 
 ```rust
 let initial_state = AppState::load_from_json();
 ```
 
-Now if you run this you should get an empty todo list. If you add a couple items, then close and reopen the app, they should be persisted! With our hardcoded `"todos.json"` path this file will be generated in the root folder of our project.  
+Now if you run this you should get an empty todo list. If you add a couple items, then close and reopen the app, they should be persisted! With our hardcoded `"todos.json"` path this file will be generated in the root folder of our project, though obviously you can use any path you'd like.  
 
 ## 6. Saving the "done" state
 
@@ -312,7 +320,7 @@ Let's create two new files:
 
 ### delegate.rs
 
-```
+```rust
 use druid::{AppDelegate, Command, DelegateCtx, Env, Handled, Selector, Target};
 
 use crate::data::AppState;
@@ -347,7 +355,7 @@ A specific `Command` is identified by its `Selector`, which we define here with 
 
 ### controllers.rs
 
-```
+```rust
 use druid::{widget::Controller, Env, UpdateCtx, Widget};
 
 use crate::data::*;
@@ -399,7 +407,7 @@ And then call the `AppLauncher` with the `Delegate`:
 
 Append the `TodoItemController` to `todo_item`'s return statement:
 
-```
+```rust
 use crate::controllers::TodoItemController;
 
 ...
@@ -421,7 +429,7 @@ Now when you run the app and toggle todos that state should be saved to `todos.j
 
 I was hoping you wouldn't notice that all of our todos are currently permanent. Very well, let's delete some!
 
-The quick and easy way is to a "Clear completed" method to our `AppState`. Let's do that first:
+The quick and easy way is to add a "Clear completed" method to our `AppState`. Let's do that first:
 
 ### data.rs
 
@@ -444,7 +452,7 @@ Remember the arguments like `ctx` and `env` are because we'll be using this with
 
 ### view.rs
 
-```
+```rust
 pub fn build_ui() -> impl Widget<AppState> {
     let clear_completed_button = Button::new("Clear completed").on_click(AppState::clear_completed);
 
@@ -499,8 +507,6 @@ Because `Uuid` doesn't impl Druid's `Data` trait, we can manually specify that D
 Now if you run the app you should see no todos in your list, even if you had some in `todos.json`. That's because we didn't make this backwards compatible, so serde failed to deserialize, and we just defaulted to an empty state. But if you create some more todos you should be seeing some uuids now.
 
 Okay so now with the help of our `Uuid` let's wire up a "Delete" button on each `todo_item`. 
-
-### data.rs
 
 First let's add a method to `AppState` to do the actual deleting. This looks a lot like our `clear_completed` function:
 
@@ -572,8 +578,12 @@ Now if you re-run the app you'll have full delete functionality!
 
 ## 8. What's next?
 
-In preparing for this tutorial I made a fuller-featured version of this app, including styling and editable todos. Hopefully the Druid mechanisms I've shown you here should give you enough context to read that code and figure out what's going on. When Druid is more mature I'd like to revisit this tutorial with new best practices and do some good styling to make our app look really polished.
+In preparing for this tutorial I made a [fuller-featured version of this app][druid-todo], including styling and editable todos. Hopefully the Druid mechanisms I've shown you here should give you enough context to read that code and figure out what's going on. When Druid is more mature I'd like to revisit this tutorial with new best practices and do some good styling to make our app look really polished.
+
+Thanks for reading!
 
 [druid]: https://github.com/linebender/druid
+[traits]: https://doc.rust-lang.org/book/ch10-02-traits.html
 [gtk3]: https://github.com/linebender/druid#using-druid
 [zulip]: https://xi.zulipchat.com/
+[druid-todo]: https://github.com/futurepaul/druid-todo
