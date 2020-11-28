@@ -74,7 +74,7 @@ When you run this with `cargo run` you should get a nice little window with the 
 
 A todo list app needs a list of todos, so let's add that to our `data.rs`. We'll create a `TodoItem` struct and add a `im::Vector` of those to the `AppState`. I'm also deriving `Lens` for both of our structs, which I'll explain in a second. I'll also impl some `new` functions to make it easier to stub in dummy data. 
 
-_If you you don't want to use an immutable `Vector` for the todo list, you can also use a traditional Rust `Vec`, however you can't derive `Data` for `Vec` automatically (remember `Data` needs to be cheap to compare and cheap to clone). To solve this, wrap the `Vec` in an `Arc` and you'll be good._ 
+_If you you don't want to use an immutable `Vector` for the todo list, you can also use a traditional Rust `Vec`, however you can't derive `Data` for `Vec` automatically (remember `Data` needs to be cheap to compare and cheap to clone). To solve this, wrap the `Vec` in an `Arc` and you'll be good. `Vector` is easy to mutate without cloning, but this is also usually possible with `Arc` using `Arc::make_mut`_.
 
 ### data.rs
 
