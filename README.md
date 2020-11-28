@@ -495,7 +495,7 @@ impl TodoItem {
 }
 ```
 
-Because `Uuid` doesn't impl Druid's `Data` trait, we can manually specify that Druid should use `same_fn = "PartialEq::eq"` to derive `Data`. For truly exceptionally cases you can also of course impl `Data` manually, but `PartialEq` is usually a good fit for foreign types.
+Because `Uuid` doesn't impl Druid's `Data` trait, we can manually specify that Druid should use `same_fn = "PartialEq::eq"` to derive `Data`, which is fast in this case because `Uuid` is 128 bits all on the stack. For truly exceptionally cases you can also of course impl `Data` manually, and of course you can always wrap your type in an `Arc`. Just remember the mantra: "cheap to compare and cheap to clone."
 
 Now if you run the app you should see no todos in your list, even if you had some in `todos.json`. That's because we didn't make this backwards compatible, so serde failed to deserialize, and we just defaulted to an empty state. But if you create some more todos you should be seeing some uuids now.
 
