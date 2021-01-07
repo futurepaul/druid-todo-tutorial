@@ -1,7 +1,7 @@
 use druid::{AppLauncher, WindowDesc};
 
 mod data;
-use data::{AppState, TodoItem};
+use data::AppState;
 
 mod view;
 use view::build_ui;

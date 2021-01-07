@@ -16,13 +16,6 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(todos: Vec<TodoItem>) -> Self {
-        Self {
-            new_todo: "".into(),
-            todos: Vector::from(todos),
-        }
-    }
-
     fn add_todo(&mut self) {
         self.todos.push_front(TodoItem::new(&self.new_todo));
         self.new_todo = "".into();

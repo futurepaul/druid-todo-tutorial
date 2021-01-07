@@ -2,11 +2,11 @@ Hello! My name is Paul and today I'd like to help you make a slightly-more-compl
 
 ## 1. Setup
 
-To get started let's create a new project: `cargo new druid-todo-tutorial`. Now `cd` into that folder and add `druid` as a dependency to the `Cargo.toml` file. I'm going to be pulling from master (should roughly correspond to version 0.7 of Druid) and so I'm going to pin to the most recent commit at the time of this writing:
+To get started let's create a new project: `cargo new druid-todo-tutorial`. Now `cd` into that folder and add `druid` as a dependency to the `Cargo.toml` file. This tutorial was written against Druid version 0.7: 
 
 ```toml
 [dependencies]
-druid = { git = "https://github.com/linebender/druid", rev="8b0e5c9", features = ["im"]}
+druid = { version = "0.7", features = ["im"]}
 ```
 
 The `"im"` feature flag is optional but it allows Druid to use immutable types from the `im-rs` project which ends up being an ergonomic win when setting up our app's state (we'll be storing our todos in an immutable `Vector`).
@@ -386,7 +386,12 @@ Now let's wire these up to our app.
 
 ### main.rs
 
-Make sure to declare the new modules:
+Make sure to declare the new modulepub fn new(todos: Vec<TodoItem>) -> Self {
+        Self {
+            new_todo: "".into(),
+            todos: Vector::from(todos),
+        }
+    }s:
 
 ```rust
 mod controllers;
