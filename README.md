@@ -386,12 +386,7 @@ Now let's wire these up to our app.
 
 ### main.rs
 
-Make sure to declare the new modulepub fn new(todos: Vec<TodoItem>) -> Self {
-        Self {
-            new_todo: "".into(),
-            todos: Vector::from(todos),
-        }
-    }s:
+Make sure to declare the new modules:
 
 ```rust
 mod controllers;
