@@ -457,7 +457,7 @@ pub fn build_ui() -> impl Widget<AppState> {
 }
 ```
 
-We pass the `AppState::clear_completed_button` method to this `Button`'s `on_click`, do a little bit of flex spacer-ing, and we're done!
+We pass the `AppState::clear_completed` method to this `Button`'s `on_click`, do a little bit of flex spacer-ing, and we're done!
 
 Now we can run the app and clear the completed todos.
 
